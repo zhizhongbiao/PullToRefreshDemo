@@ -14,12 +14,7 @@
         android:gravity="center"
         android:text="Hello World!" />
 
-    <!--<Button-->
-        <!--android:text="finishRefreshing"-->
-        <!--android:textAllCaps="false"-->
-        <!--android:onClick="finishRefreshing"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="100px" />-->
+
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"

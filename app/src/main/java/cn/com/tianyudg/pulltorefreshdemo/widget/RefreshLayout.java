@@ -23,8 +23,8 @@ public class RefreshLayout extends LinearLayout {
     private float mLastY;
     private float mMoveY;
 
-    private int UP_DIRECTION=-1;
-    private int DOWN_DIRECTION=1;
+    private int UP_DIRECTION = -1;
+    private int DOWN_DIRECTION = 1;
     private int mDiff;
 
     //阻尼系数,越小阻力越大
@@ -91,7 +91,7 @@ public class RefreshLayout extends LinearLayout {
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                
+
                 mLastY = ev.getRawY();
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -197,4 +197,21 @@ public class RefreshLayout extends LinearLayout {
             invalidate();
         }
     }
+
+
+    public OnRefreshListener getmListener() {
+        return mListener;
+    }
+
+    private OnRefreshListener mListener;
+
+    public void setmListener(OnRefreshListener mListener) {
+        this.mListener = mListener;
+    }
+
+    public interface OnRefreshListener {
+        void onRefresh();
+    }
+
+
 }
