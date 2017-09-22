@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cn.com.tianyudg.pulltorefreshdemo.widget.RefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvHeader"
+        android:layout_width="match_parent"
+        android:layout_height="500px"
+
+        android:background="@color/colorAccent"
+        android:gravity="center"
+        android:text="Hello World!" />
+
+    <!--<Button-->
+        <!--android:text="finishRefreshing"-->
+        <!--android:textAllCaps="false"-->
+        <!--android:onClick="finishRefreshing"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="100px" />-->
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:id="@+id/rv"
+        android:layout_weight="1"
+        android:background="#6de14d" />
+
+
+
+
+</cn.com.tianyudg.pulltorefreshdemo.widget.RefreshLayout>
