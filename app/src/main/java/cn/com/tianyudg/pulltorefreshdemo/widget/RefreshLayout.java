@@ -2,6 +2,7 @@ package cn.com.tianyudg.pulltorefreshdemo.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -37,6 +38,7 @@ public class RefreshLayout extends LinearLayout {
     private View contentView;
     private float mDownX;
     private float mMoveX;
+    private float downYProgress;
 
     public enum Status {
         IDLE, PULLING_DOWN, RELEASE_TO_REFRESH, REFRESHING
@@ -63,6 +65,9 @@ public class RefreshLayout extends LinearLayout {
 
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         mScroller = new Scroller(context);
+        header = new DefaultHeaderView(context);
+        addView(header);
+
     }
 
 
@@ -71,7 +76,7 @@ public class RefreshLayout extends LinearLayout {
         super.onFinishInflate();
         int childCount = getChildCount();
         if (childCount < 2) return;
-        header = getChildAt(0);
+//        header = getChildAt(0);
         contentView = getChildAt(1);
 
     }
@@ -81,7 +86,6 @@ public class RefreshLayout extends LinearLayout {
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
         headerHeight = this.header.getHeight();
-        header.setPadding(0, -headerHeight, 0, 0);
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) header.getLayoutParams();
         layoutParams.topMargin = -headerHeight;
         header.setLayoutParams(layoutParams);
@@ -129,18 +133,13 @@ public class RefreshLayout extends LinearLayout {
 
                 if (currentStatus != Status.REFRESHING && mDiff < 0) {
                     scrollBy(0, (int) (mDiff * (headerHeight / (headerHeight + mMoveY / factor))));
-                    if (Math.abs(getScrollY()) >= headerHeight) {
-                        currentStatus = Status.RELEASE_TO_REFRESH;
-                    } else {
-                        currentStatus = Status.PULLING_DOWN;
-                    }
+                    updateHeaderState();
 
                     return true;
-                } else if ((currentStatus == Status.PULLING_DOWN || currentStatus == Status.RELEASE_TO_REFRESH)) {
-                    if (getScrollY() < 0) {
-                        scrollBy(0, (int) (mDiff * (headerHeight / (headerHeight + mMoveY / factor))));
-                        return true;
-                    }
+                } else if (getScrollY() < 0 && (currentStatus == Status.PULLING_DOWN || currentStatus == Status.RELEASE_TO_REFRESH)) {
+                    scrollBy(0, (int) (mDiff * (headerHeight / (headerHeight + mMoveY / factor))));
+                    updateHeaderState();
+                    return true;
 
                 }
 
@@ -154,6 +153,11 @@ public class RefreshLayout extends LinearLayout {
                     scrollDistance = -getScrollY();
                     currentStatus = Status.IDLE;
                 } else if (Math.abs(getScrollY()) >= headerHeight) {
+                    if (mListener != null) {
+                        mListener.onRefresh();
+                    }
+                     downYProgress = Math.abs(getScrollY()) / (float)headerHeight;
+                    ((IHeaderView) header).onRefreshing(downYProgress);
                     scrollDistance = Math.abs(getScrollY()) - headerHeight;
                     currentStatus = Status.REFRESHING;
 
@@ -171,9 +175,23 @@ public class RefreshLayout extends LinearLayout {
         return super.onTouchEvent(event);
     }
 
+    private void updateHeaderState() {
+
+        if (Math.abs(getScrollY()) >= headerHeight) {
+            downYProgress = Math.abs(getScrollY()) / (float)headerHeight;
+            ((IHeaderView) header).onReleashToRefreshing(downYProgress);
+            currentStatus = Status.RELEASE_TO_REFRESH;
+        } else {
+             downYProgress = Math.abs(getScrollY()) / (float)headerHeight;
+            ((IHeaderView) header).onPullingDown(downYProgress);
+            currentStatus = Status.PULLING_DOWN;
+        }
+    }
+
 
     public void finishRefreshing() {
         if (!isRefreshing()) return;
+        ((IHeaderView) header).onFinishRefreshing();
         mScroller.startScroll(0, getScrollY(), 0, headerHeight);
         currentStatus = Status.IDLE;
         invalidate();
@@ -194,6 +212,14 @@ public class RefreshLayout extends LinearLayout {
         // 第三步，重写computeScroll()方法，并在其内部完成平滑滚动的逻辑
         if (mScroller.computeScrollOffset()) {
             scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
+            if (currentStatus==Status.REFRESHING)
+            {
+                ((IHeaderView) header).onRecover(Math.abs(getScrollY()) / (float)headerHeight);
+                Log.e(TAG, "Math.abs(getScrollY()) / (float)headerHeight=" + Math.abs(getScrollY()) / (float)headerHeight);
+            }
+            ((IHeaderView) header).onRecover(downYProgress);
+            downYProgress=Math.abs(getScrollY()) / (float)headerHeight;
+
             invalidate();
         }
     }

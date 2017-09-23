@@ -8,11 +8,13 @@ package cn.com.tianyudg.pulltorefreshdemo.widget;
 
 public interface IHeaderView {
 
-    void onPullingDown();
+    void onPullingDown(float downYProgress);
 
-    void onReleashToRefreshing();
+    void onReleashToRefreshing(float downYProgress);
 
-    void onRefreshing();
+    void onRecover(float downYProgress);
+
+    void onRefreshing(float downYProgress);
 
     void onFinishRefreshing();
 }
