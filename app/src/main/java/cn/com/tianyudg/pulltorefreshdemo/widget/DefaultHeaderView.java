@@ -61,7 +61,6 @@ public class DefaultHeaderView extends FrameLayout implements IHeaderView {
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
         headerHeight = getHeight();
-
         tvWidth = tv.getWidth();
         tvTop = tv.getTop();
         ivWidth = iv.getWidth();
@@ -89,12 +88,12 @@ public class DefaultHeaderView extends FrameLayout implements IHeaderView {
         float translationX = widthPixels * downYProgress;
         float translationY = widthPixels * downYProgress;
 //        float translationY = headerHeight * downYProgress;
-        iv.setTranslationX(translationX - widthPixels / 2);
+        iv.setTranslationX(translationX );
 //        iv.setTranslationY(translationY-headerHeight/10);
 //        Log.e(TAG, "onPullingDown: translationX/downYProgress/widthPixels-translationX=" + translationX + "/" + downYProgress + "/" + (widthPixels - translationX));
 //        Log.e(TAG, "onPullingDown: translationX/downYProgress/widthPixels-translationX=" + translationY + "/" + downYProgress + "/" + (headerHeight - translationY));
 //        tv.scrollTo((int) (widthPixels-translationX),0);
-        tv.setTranslationX(widthPixels - translationX / 2);
+        tv.setTranslationX(widthPixels - translationX );
 //        tv.setTranslationY(tvTop+translationY);
 //        tv.setTranslationY(translationY);
 //        tv.setTranslationY(headerHeight - translationY);
@@ -107,7 +106,7 @@ public class DefaultHeaderView extends FrameLayout implements IHeaderView {
 
     @Override
     public void onRecover(float downYProgress) {
-//            updateHeaderView(downYProgress);
+            updateHeaderView(downYProgress);
 
     }
 
