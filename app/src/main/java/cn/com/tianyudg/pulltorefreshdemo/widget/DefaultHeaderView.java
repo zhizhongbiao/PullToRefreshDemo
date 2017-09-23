@@ -6,6 +6,7 @@ import android.content.Context;
 import android.support.annotation.AttrRes;
 import android.support.annotation.StyleRes;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -76,42 +77,35 @@ public class DefaultHeaderView extends FrameLayout implements IHeaderView {
         v.setLayoutParams(layoutParams);
     }
 
+
     @Override
-    public void onPullingDown(float downYProgress) {
+    public void onPullingDown(int downY) {
+        updateHeaderView(downY);
         tv.setText("下拉刷新");
-        updateHeaderView(downYProgress);
-
-
-    }
-
-    private void updateHeaderView(float downYProgress) {
-        float translationX = widthPixels * downYProgress;
-        float translationY = widthPixels * downYProgress;
-//        float translationY = headerHeight * downYProgress;
-        iv.setTranslationX(translationX );
-//        iv.setTranslationY(translationY-headerHeight/10);
-//        Log.e(TAG, "onPullingDown: translationX/downYProgress/widthPixels-translationX=" + translationX + "/" + downYProgress + "/" + (widthPixels - translationX));
-//        Log.e(TAG, "onPullingDown: translationX/downYProgress/widthPixels-translationX=" + translationY + "/" + downYProgress + "/" + (headerHeight - translationY));
-//        tv.scrollTo((int) (widthPixels-translationX),0);
-        tv.setTranslationX(widthPixels - translationX );
-//        tv.setTranslationY(tvTop+translationY);
-//        tv.setTranslationY(translationY);
-//        tv.setTranslationY(headerHeight - translationY);
     }
 
     @Override
-    public void onReleashToRefreshing(float downYProgress) {
+    public void onReleashToRefreshing(int downY) {
+        updateHeaderView(downY);
         tv.setText("释放刷新");
     }
 
     @Override
-    public void onRecover(float downYProgress) {
-            updateHeaderView(downYProgress);
+    public void onRecoverHeaderState(int downY) {
+        updateHeaderView(downY);
+    }
 
+    private void updateHeaderView(int downY) {
+        float ratio = headerHeight / (float) (headerHeight + downY);
+//        iv.setTranslationX(ratio * widthPixels);
+//        tv.setTranslationX(-ratio * widthPixels);
+        Log.e(TAG, "updateHeaderView: downY="+downY );
+        iv.setTranslationX(downY);
+        tv.setTranslationX(-downY);
     }
 
     @Override
-    public void onRefreshing(float downYProgress) {
+    public void onRefreshing(int downY) {
 
         tv.setText("正在刷新");
         iv.clearAnimation();
