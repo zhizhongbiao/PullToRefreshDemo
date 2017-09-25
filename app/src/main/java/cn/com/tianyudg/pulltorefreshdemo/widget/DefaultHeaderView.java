@@ -36,6 +36,7 @@ public class DefaultHeaderView extends FrameLayout implements IHeaderView {
     private int headerHeight;
     private int ivHeight;
     private int tvTop;
+    private float totalHalfWidth;
 
     public DefaultHeaderView(Context context) {
         this(context, null);
@@ -67,6 +68,8 @@ public class DefaultHeaderView extends FrameLayout implements IHeaderView {
         ivWidth = iv.getWidth();
         ivHeight = iv.getHeight();
 
+        totalHalfWidth = (ivWidth + tvWidth) / 2f;
+
         setMarginLeft(iv, ivWidth / 2);
         setMarginLeft(tv, tvWidth / 2 + ivWidth / 2);
     }
@@ -96,12 +99,17 @@ public class DefaultHeaderView extends FrameLayout implements IHeaderView {
     }
 
     private void updateHeaderView(int downY) {
-        float ratio = headerHeight / (float) (headerHeight + downY);
-//        iv.setTranslationX(ratio * widthPixels);
-//        tv.setTranslationX(-ratio * widthPixels);
-        Log.e(TAG, "updateHeaderView: downY="+downY );
-        iv.setTranslationX(downY);
-        tv.setTranslationX(-downY);
+        float ratio =  downY/ (float) (headerHeight );
+        float distance = ratio * (widthPixels/2);
+
+        float leftMargin = distance - (totalHalfWidth - ivWidth / 2);
+        iv.setTranslationX(leftMargin);
+        float rightMargin = -(distance - totalHalfWidth);
+        tv.setTranslationX(rightMargin);
+        Log.e(TAG, "updateHeaderView: leftMargin/rightMargin="+leftMargin+"/"+rightMargin );
+
+//        iv.setTranslationX(downY);
+//        tv.setTranslationX(-downY);
     }
 
     @Override
