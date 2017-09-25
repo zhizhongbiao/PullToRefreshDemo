@@ -1,6 +1,8 @@
 package cn.com.tianyudg.pulltorefreshdemo.widget;
 
 import android.content.Context;
+import android.support.v4.view.NestedScrollingChild;
+import android.support.v4.view.NestedScrollingParent;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,7 +16,7 @@ import android.widget.Scroller;
  * Desc :
  */
 
-public class RefreshLayout extends LinearLayout {
+public class RefreshLayout extends LinearLayout implements NestedScrollingChild, NestedScrollingParent {
 
     private static final String TAG = "RefreshLayout";
     private final int mTouchSlop;
@@ -29,7 +31,7 @@ public class RefreshLayout extends LinearLayout {
 
     //阻尼系数,越小阻力越大
     private int headerFactor = 4;
-    private int footerFactor =10;
+    private int footerFactor = 10;
 
     private View header;
     private int headerHeight;
@@ -194,7 +196,7 @@ public class RefreshLayout extends LinearLayout {
 
                 if ((currentStatus == Status.IDLE || currentStatus == Status.PULLING_UP) && mDiff > 0) {
 
-                    scrollBy(0,mDiff);
+                    scrollBy(0, mDiff);
                     currentStatus = Status.PULLING_UP;
                     return true;
 
