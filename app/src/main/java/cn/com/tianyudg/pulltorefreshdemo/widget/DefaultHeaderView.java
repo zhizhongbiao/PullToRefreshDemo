@@ -70,6 +70,7 @@ public class DefaultHeaderView extends FrameLayout implements IHeaderView {
 
         totalHalfWidth = (ivWidth + tvWidth) / 2f;
 
+//        Header_I
 //        setMarginLeft(iv, ivWidth / 2);
 //        setMarginLeft(tv, tvWidth / 2 );
     }
@@ -121,7 +122,7 @@ public class DefaultHeaderView extends FrameLayout implements IHeaderView {
 
         tv.setText("正在刷新");
         iv.clearAnimation();
-        if (rotation!=null&&rotation.isRunning())rotation.cancel();
+        if (rotation != null && rotation.isRunning()) rotation.cancel();
         rotation = ObjectAnimator.ofFloat(iv, "Rotation", 0, 3600);
         rotation.setAutoCancel(true);
         rotation.setDuration(2000);
