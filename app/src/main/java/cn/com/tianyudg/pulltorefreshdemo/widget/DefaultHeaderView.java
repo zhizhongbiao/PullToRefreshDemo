@@ -6,7 +6,6 @@ import android.content.Context;
 import android.support.annotation.AttrRes;
 import android.support.annotation.StyleRes;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -35,8 +34,9 @@ public class DefaultHeaderView extends FrameLayout implements IHeaderView {
     private int ivWidth;
     private int headerHeight;
     private int ivHeight;
-    private int tvTop;
+
     private float totalHalfWidth;
+    private int tvHeight;
 
     public DefaultHeaderView(Context context) {
         this(context, null);
@@ -52,7 +52,7 @@ public class DefaultHeaderView extends FrameLayout implements IHeaderView {
 
     public DefaultHeaderView(Context context, AttributeSet attrs, @AttrRes int defStyleAttr, @StyleRes int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        contentView = (DefaultHeaderView) LayoutInflater.from(context).inflate(R.layout.header_default, this, true);
+        contentView = (DefaultHeaderView) LayoutInflater.from(context).inflate(R.layout.header_default_ii, this, true);
         tv = (TextView) contentView.findViewById(R.id.tv);
         iv = (ImageView) contentView.findViewById(R.id.iv);
         widthPixels = getResources().getDisplayMetrics().widthPixels;
@@ -64,14 +64,14 @@ public class DefaultHeaderView extends FrameLayout implements IHeaderView {
         super.onWindowFocusChanged(hasWindowFocus);
         headerHeight = getHeight();
         tvWidth = tv.getWidth();
-        tvTop = tv.getTop();
+        tvHeight = tv.getHeight();
         ivWidth = iv.getWidth();
         ivHeight = iv.getHeight();
 
         totalHalfWidth = (ivWidth + tvWidth) / 2f;
 
-        setMarginLeft(iv, ivWidth / 2);
-        setMarginLeft(tv, tvWidth / 2 + ivWidth / 2);
+//        setMarginLeft(iv, ivWidth / 2);
+//        setMarginLeft(tv, tvWidth / 2 );
     }
 
     private void setMarginLeft(View v, int marginLeft) {
@@ -100,16 +100,17 @@ public class DefaultHeaderView extends FrameLayout implements IHeaderView {
 
     private void updateHeaderView(int downY) {
         float ratio =  downY/ (float) (headerHeight );
-        float distance = ratio * (widthPixels/2);
+//        float distance = ratio * (widthPixels/2);
+        float distance = ratio * (headerHeight/2);
 
-        float leftMargin = distance - (totalHalfWidth - ivWidth / 2);
-        iv.setTranslationX(leftMargin);
-        float rightMargin = -(distance - totalHalfWidth);
-        tv.setTranslationX(rightMargin);
-        Log.e(TAG, "updateHeaderView: leftMargin/rightMargin="+leftMargin+"/"+rightMargin );
+//        float leftMargin = distance - (totalHalfWidth - ivWidth / 2);
+//        iv.setTranslationX(leftMargin);
+//        float rightMargin = -(distance - totalHalfWidth);
+//        tv.setTranslationX(rightMargin);
+//        Log.e(TAG, "updateHeaderView: leftMargin/rightMargin="+leftMargin+"/"+rightMargin );
 
-//        iv.setTranslationX(downY);
-//        tv.setTranslationX(-downY);
+        iv.setTranslationY(distance-ivHeight/2);
+        tv.setTranslationY(-(distance-tvHeight/2));
     }
 
     @Override
