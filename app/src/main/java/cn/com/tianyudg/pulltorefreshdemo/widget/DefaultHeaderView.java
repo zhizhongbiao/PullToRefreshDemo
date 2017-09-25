@@ -99,18 +99,21 @@ public class DefaultHeaderView extends FrameLayout implements IHeaderView {
     }
 
     private void updateHeaderView(int downY) {
-        float ratio =  downY/ (float) (headerHeight );
-//        float distance = ratio * (widthPixels/2);
-        float distance = ratio * (headerHeight/2);
+        float ratio = downY / (float) (headerHeight);
 
+//        Header_I
+//        float distance = ratio * (widthPixels/2);
 //        float leftMargin = distance - (totalHalfWidth - ivWidth / 2);
 //        iv.setTranslationX(leftMargin);
 //        float rightMargin = -(distance - totalHalfWidth);
 //        tv.setTranslationX(rightMargin);
-//        Log.e(TAG, "updateHeaderView: leftMargin/rightMargin="+leftMargin+"/"+rightMargin );
 
-        iv.setTranslationY(distance-ivHeight/2);
-        tv.setTranslationY(-(distance-tvHeight/2));
+//        Header_II
+        float distance = ratio * (headerHeight / 2);
+        float topMargin = distance - ivHeight / 2;
+        iv.setTranslationY(topMargin);
+        float bottomMargin = -(distance - tvHeight / 2);
+        tv.setTranslationY(bottomMargin);
     }
 
     @Override
@@ -118,14 +121,18 @@ public class DefaultHeaderView extends FrameLayout implements IHeaderView {
 
         tv.setText("正在刷新");
         iv.clearAnimation();
+        if (rotation!=null&&rotation.isRunning())rotation.cancel();
         rotation = ObjectAnimator.ofFloat(iv, "Rotation", 0, 3600);
-        rotation.setDuration(500);
+        rotation.setAutoCancel(true);
+        rotation.setDuration(2000);
         rotation.setRepeatCount(ValueAnimator.INFINITE);
         rotation.start();
     }
 
     @Override
     public void onFinishRefreshing() {
+        if (!rotation.isRunning()) return;
+
         rotation.cancel();
     }
 
