@@ -28,7 +28,8 @@ public class RefreshLayout extends LinearLayout {
     private int mDiff;
 
     //阻尼系数,越小阻力越大
-    private int factor = 4;
+    private int headerFactor = 4;
+    private int footerFactor =10;
 
     private View header;
     private int headerHeight;
@@ -37,12 +38,13 @@ public class RefreshLayout extends LinearLayout {
     private View contentView;
     private float mDownX;
     private float mMoveX;
+    private int screenHeight;
 
     /**
      * 状态值
      */
     public enum Status {
-        IDLE, PULLING_DOWN, RELEASE_TO_REFRESH, REFRESHING
+        IDLE, PULLING_DOWN, RELEASE_TO_REFRESH, REFRESHING, PULLING_UP
     }
 
     public View getHeader() {
@@ -73,7 +75,7 @@ public class RefreshLayout extends LinearLayout {
         setWillNotDraw(false);
 //        设置该方法使该控件onTouchEvent方法起作用
         setClickable(true);
-
+        screenHeight = getResources().getDisplayMetrics().heightPixels;
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 //        初始化滑动控制器
         mScroller = new Scroller(context);
@@ -130,6 +132,11 @@ public class RefreshLayout extends LinearLayout {
                     return true;
 
 
+//                如果上拉并contentView处于其自身的底部状态下,拦截事件,让该父控件处理上拉加载更多事件
+                if (mDiff > 0 && !contentView.canScrollVertically(DOWN_DIRECTION))
+                    return true;
+
+
                 break;
             case MotionEvent.ACTION_UP:
                 break;
@@ -159,14 +166,36 @@ public class RefreshLayout extends LinearLayout {
                 mLastY = mMoveY;
 
 //                下滑并当前状态不是正在刷新,下滑距离乘以阻尼系数==滑动距离
-                if (currentStatus != Status.REFRESHING && mDiff < 0) {
-                    scrollBy(0, (int) (mDiff * (headerHeight / (headerHeight + mMoveY / factor))));
+                if ((currentStatus == Status.PULLING_DOWN
+                        || currentStatus == Status.RELEASE_TO_REFRESH
+                        || currentStatus == Status.IDLE)
+                        && mDiff < 0) {
+                    scrollBy(0, (int) (mDiff * (headerHeight / (headerHeight + mMoveY / headerFactor))));
                     updateHeaderState();
                     return true;
-                } else if (getScrollY() < 0 && (currentStatus == Status.PULLING_DOWN || currentStatus == Status.RELEASE_TO_REFRESH)) {
+                }
+
+
+                if (getScrollY() < 0 &&
+                        (currentStatus == Status.PULLING_DOWN ||
+                                currentStatus == Status.RELEASE_TO_REFRESH)) {
 //                    当处于手触摸着屏幕移动的状态时候,向上滑动该Viewgroup的内容View向上移动
-                    scrollBy(0, (int) (mDiff * (headerHeight / (headerHeight + mMoveY / factor))));
+                    scrollBy(0, (int) (mDiff * (headerHeight / (headerHeight + mMoveY / headerFactor))));
                     updateHeaderState();
+                    return true;
+
+                }
+
+                if (getScrollY() > 0 &&
+                        currentStatus == Status.PULLING_UP) {
+                    scrollBy(0, mDiff);
+                }
+
+
+                if ((currentStatus == Status.IDLE || currentStatus == Status.PULLING_UP) && mDiff > 0) {
+
+                    scrollBy(0,mDiff);
+                    currentStatus = Status.PULLING_UP;
                     return true;
 
                 }
@@ -179,6 +208,7 @@ public class RefreshLayout extends LinearLayout {
 
                 int scrollDistance;
                 if (getScrollY() > 0) {
+
 //                    如果是向上滑动,放手直接恢复原来位置
                     scrollDistance = -getScrollY();
                     currentStatus = Status.IDLE;
@@ -237,12 +267,12 @@ public class RefreshLayout extends LinearLayout {
 
     /**
      * 判断是否正在刷新
+     *
      * @return
      */
     public boolean isRefreshing() {
         return currentStatus == Status.REFRESHING;
     }
-
 
 
     /**
