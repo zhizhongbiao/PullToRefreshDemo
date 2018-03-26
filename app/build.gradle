@@ -30,4 +30,8 @@ dependencies {
 
     compile 'com.android.support:recyclerview-v7:25.0.+'
     compile 'com.android.support:design:25.0.+'
+
+
+    //ultra pull to refresh
+    compile 'in.srain.cube:ultra-ptr:1.0.11'
 }

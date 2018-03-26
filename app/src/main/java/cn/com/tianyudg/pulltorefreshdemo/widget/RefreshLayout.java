@@ -4,9 +4,11 @@ import android.content.Context;
 import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.NestedScrollingParent;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.widget.AbsListView;
 import android.widget.LinearLayout;
 import android.widget.Scroller;
 
@@ -41,6 +43,7 @@ public class RefreshLayout extends LinearLayout implements NestedScrollingChild,
     private float mDownX;
     private float mMoveX;
     private int screenHeight;
+    private boolean isReadyToPullToRefresh;
 
     /**
      * 状态值
@@ -122,30 +125,39 @@ public class RefreshLayout extends LinearLayout implements NestedScrollingChild,
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mLastY = ev.getRawY();
+                Log.e(TAG, "onInterceptTouchEvent: ---------ACTION_DOWN" );
                 break;
             case MotionEvent.ACTION_MOVE:
+                Log.e(TAG, "onInterceptTouchEvent: ---------ACTION_MOVE" );
                 mMoveY = ev.getRawY();
                 mDiff = (int) (mLastY - mMoveY);
 //                如果不处于正常停止状态全部拦截,让该父控件自己处理事件,不让其子控件处理事件
                 if (currentStatus != Status.IDLE) return true;
 
 //                如果下拉并contentView处于其自身的顶部状态下,拦截事件,让该父控件处理下拉刷新事件
-                if (mDiff < 0 && !contentView.canScrollVertically(UP_DIRECTION))
+//                if (mDiff < 0 && !contentView.canScrollVertically(UP_DIRECTION))//该处判断顶部条件有问题
+                if (mDiff < 0 && !canChildScrollUp(contentView))//该处判断顶部条件有问题
+                {
+                    Log.e(TAG, "onInterceptTouchEvent: mDiff="+mDiff );
                     return true;
+                }
 
 
 //                如果上拉并contentView处于其自身的底部状态下,拦截事件,让该父控件处理上拉加载更多事件
-                if (mDiff > 0 && !contentView.canScrollVertically(DOWN_DIRECTION))
+                if (mDiff > 0 && !contentView.canScrollVertically(DOWN_DIRECTION))//该处判断底部条件有问题
                     return true;
 
 
                 break;
             case MotionEvent.ACTION_UP:
+                Log.e(TAG, "onInterceptTouchEvent: ---------ACTION_UP" );
                 break;
         }
 
         return super.onInterceptTouchEvent(ev);
     }
+
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -155,7 +167,7 @@ public class RefreshLayout extends LinearLayout implements NestedScrollingChild,
                 mDownY = event.getRawY();
 //                mDownX = event.getRawX();
                 mLastY = this.mDownY;
-                break;
+                return false;
             case MotionEvent.ACTION_MOVE:
 
                 mMoveY = event.getRawY();
@@ -205,7 +217,7 @@ public class RefreshLayout extends LinearLayout implements NestedScrollingChild,
 
                 break;
             case MotionEvent.ACTION_UP:
-//                如果处于正常停止状况,事件交给子View处理
+//                如果处于正常停止状况,事件交给父View处理
                 if (currentStatus == Status.IDLE) return super.onTouchEvent(event);
 
                 int scrollDistance;
@@ -311,5 +323,20 @@ public class RefreshLayout extends LinearLayout implements NestedScrollingChild,
         void onRefresh();
     }
 
+
+    public  boolean canChildScrollUp(View view) {
+        if (android.os.Build.VERSION.SDK_INT < 14) {
+            if (view instanceof AbsListView) {
+                final AbsListView absListView = (AbsListView) view;
+                return absListView.getChildCount() > 0
+                        && (absListView.getFirstVisiblePosition() > 0 || absListView.getChildAt(0)
+                        .getTop() < absListView.getPaddingTop());
+            } else {
+                return view.getScrollY() > 0;
+            }
+        } else {
+            return view.canScrollVertically(-1);
+        }
+    }
 
 }
